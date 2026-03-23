@@ -236,7 +236,10 @@ export default function PortalTransparencia() {
                                     <TrendingUp className="w-3 h-3 text-green-500" />
                                     <span className="text-[10px] font-black text-green-600">
                                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                                        item.selectedData.reduce((acc, t) => acc + (t._type === 'financeiro' && t.type === 'entrada' ? t.value : 0), 0)
+                                        item.selectedData.reduce((acc, t) => {
+                                          const v = t?.value ?? t?.valor;
+                                          return acc + (t?._type === 'financeiro' && t?.type === 'entrada' && typeof v === 'number' ? v : 0);
+                                        }, 0)
                                       )}
                                     </span>
                                   </div>
@@ -244,7 +247,10 @@ export default function PortalTransparencia() {
                                     <TrendingDown className="w-3 h-3 text-red-500" />
                                     <span className="text-[10px] font-black text-red-600">
                                       {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                                        item.selectedData.reduce((acc, t) => acc + (t._type === 'financeiro' && t.type === 'saida' ? t.value : 0), 0)
+                                        item.selectedData.reduce((acc, t) => {
+                                          const v = t?.value ?? t?.valor;
+                                          return acc + (t?._type === 'financeiro' && t?.type === 'saida' && typeof v === 'number' ? v : 0);
+                                        }, 0)
                                       )}
                                     </span>
                                   </div>
@@ -260,31 +266,39 @@ export default function PortalTransparencia() {
                                     </tr>
                                   </thead>
                                   <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                                     {item.selectedData.map((t, idx) => (
-                                      <tr key={idx} className="hover:bg-gray-50/30 dark:hover:bg-gray-800/30 transition-colors text-gray-900 dark:text-gray-100">
-                                        <td className="px-4 py-3">
-                                          <div className="flex items-center gap-2">
-                                            {t._type === 'financeiro' ? (
-                                              t.type === 'entrada' ? <ArrowUpRight className="w-3 h-3 text-green-500" /> : <ArrowDownRight className="w-3 h-3 text-red-500" />
+                                     {item.selectedData.map((t, idx) => {
+                                      if (!t) return null;
+                                      const val = t.value ?? t.valor;
+                                      const description = t.description || t.nome || 'Sem descrição';
+                                      const category = t.category || t.estado || t._type || 'Geral';
+                                      
+                                      return (
+                                        <tr key={idx} className="hover:bg-gray-50/30 dark:hover:bg-gray-800/30 transition-colors text-gray-900 dark:text-gray-100">
+                                          <td className="px-4 py-3">
+                                            <div className="flex items-center gap-2">
+                                              {t._type === 'financeiro' ? (
+                                                t.type === 'entrada' ? <ArrowUpRight className="w-3 h-3 text-green-500" /> : <ArrowDownRight className="w-3 h-3 text-red-500" />
+                                              ) : (
+                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                              )}
+                                              <span className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-tighter">{description}</span>
+                                            </div>
+                                          </td>
+                                          <td className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{category}</td>
+                                          <td className="px-4 py-3 text-xs font-black text-right tracking-widest text-gray-600">
+                                            {typeof val === 'number' ? (
+                                              <span className={t.type === 'entrada' ? 'text-green-600' : 'text-red-600'}>
+                                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val)}
+                                              </span>
+                                            ) : val !== undefined ? (
+                                              <span>{val}</span>
                                             ) : (
-                                              <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+                                              <span className="text-gray-300">-</span>
                                             )}
-                                            <span className="text-xs font-bold text-gray-700 dark:text-gray-200 uppercase tracking-tighter">{t.description || t.nome}</span>
-                                          </div>
-                                        </td>
-                                        <td className="px-4 py-3 text-[10px] font-bold text-gray-400 uppercase tracking-widest">{t.category || t.estado || t._type}</td>
-                                        <td className="px-4 py-3 text-xs font-black text-right tracking-widest text-gray-600">
-                                          {t.value !== undefined && (
-                                            <span className={t.type === 'entrada' ? 'text-green-600' : 'text-red-600'}>
-                                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(t.value)}
-                                            </span>
-                                          )}
-                                          {t.valor !== undefined && (
-                                             <span>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(t.valor)}</span>
-                                          )}
-                                        </td>
-                                      </tr>
-                                    ))}
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
                                   </tbody>
                                 </table>
                               </div>

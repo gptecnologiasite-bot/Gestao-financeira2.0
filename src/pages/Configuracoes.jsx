@@ -46,11 +46,13 @@ export default function Configuracoes() {
 
   const [portalItems, setPortalItems] = useState(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem('portal_transparencia_itens'));
+      const raw = localStorage.getItem('portal_transparencia_itens');
+      const saved = raw ? JSON.parse(raw) : null;
+      
       if (Array.isArray(saved) && saved.length > 0) return saved;
       
       const isDemo = localStorage.getItem('finance_demo_enabled') === '1';
-      if (isDemo) {
+      if (isDemo && (!saved || (Array.isArray(saved) && saved.length === 0))) {
         return [{
           id: 'demo-1',
           text: 'Relatório Mensal de Transparência - Fevereiro 2024',
@@ -64,14 +66,16 @@ export default function Configuracoes() {
           adminPhoto: '',
           visible: true,
           locked: true,
-          createdAt: new Date('2024-03-01').toISOString()
+          createdAt: new Date('2024-02-29').toISOString()
         }];
       }
-      return [];
+      return Array.isArray(saved) ? saved : [];
     } catch {
       return [];
     }
   });
+
+  const [published, setPublished] = useState(false);
 
   const categories = [
     { id: 'geral', label: 'Geral', color: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' },
@@ -209,6 +213,9 @@ export default function Configuracoes() {
     setPortalCategory('Geral');
     setPortalPhotos([]);
     setSelectedTransactions([]);
+    
+    setPublished(true);
+    setTimeout(() => setPublished(false), 3000);
   };
 
   // Sincronizar chat e notificações
@@ -222,20 +229,45 @@ export default function Configuracoes() {
       }
     };
     
+    loadChat();
+    
+    const syncItems = () => {
+      try {
+        const raw = localStorage.getItem('portal_transparencia_itens');
+        const saved = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(saved)) {
+          setPortalItems(prev => {
+            if (JSON.stringify(prev) === JSON.stringify(saved)) return prev;
+            return saved;
+          });
+        }
+      } catch (e) {
+        console.error("Error syncing portal items", e);
+      }
+    };
+
     // Escutar mudanças de outro no storage (Portal)
     window.addEventListener('storage', (e) => {
       if (e.key === 'portal_transparencia_chat') loadChat();
+      if (e.key === 'portal_transparencia_itens') syncItems();
     });
     
     loadChat();
+    syncItems();
     
     // Limpar notificações ao entrar nas configurações
     localStorage.removeItem('portal_unread_messages');
     
-    const interval = setInterval(loadChat, 3000);
+    const interval = setInterval(() => {
+      loadChat();
+      syncItems();
+    }, 3000);
     return () => {
       clearInterval(interval);
-      window.removeEventListener('storage', loadChat);
+      window.removeEventListener('storage', (e) => {
+        if (e.key === 'portal_transparencia_chat') loadChat();
+        if (e.key === 'portal_transparencia_itens') syncItems();
+      });
     };
   }, []);
 
@@ -594,10 +626,12 @@ export default function Configuracoes() {
               <button
                 type="button"
                 onClick={handlePublishPortal}
-                className="w-full flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 transition-all shadow-md active:scale-95"
+                className={`w-full flex justify-center items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-all shadow-md active:scale-95 ${
+                  published ? 'bg-green-600' : 'bg-emerald-600 hover:bg-emerald-700'
+                }`}
               >
-                <FileText className="w-4 h-4" />
-                Publicar no Portal
+                {published ? <Check className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
+                {published ? 'Publicado com Sucesso!' : 'Publicar no Portal'}
               </button>
 
               {portalItems.length > 0 && (

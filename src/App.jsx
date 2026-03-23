@@ -33,10 +33,12 @@ function App() {
             <Route path="ministerios" element={<Ministerios />} />
             <Route path="patrimonio" element={<Patrimonio />} />
             <Route path="relatorios" element={<Relatorios />} />
-            <Route path="configuracoes" element={<Configuracoes />} />
+            <Route element={<PrivateRoute requiredPermission="configuracoes" />}>
+                <Route path="configuracoes" element={<Configuracoes />} />
+            </Route>
             
-            {/* Admin Only Routes */}
-            <Route element={<PrivateRoute adminOnly={true} />}>
+            {/* Admin or Specific Permission Routes */}
+            <Route element={<PrivateRoute requiredPermission="usuarios" />}>
                 <Route path="usuarios" element={<Usuarios />} />
             </Route>
           </Route>

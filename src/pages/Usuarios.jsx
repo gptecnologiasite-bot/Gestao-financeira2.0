@@ -221,6 +221,8 @@ export default function Usuarios() {
                 { id: 'relatorios', label: 'Relatórios' },
                 { id: 'portal', label: 'Portal Transparência' },
                 { id: 'paginas', label: 'Páginas (Conteúdo)' },
+                { id: 'configuracoes', label: 'Configurações' },
+                { id: 'usuarios', label: 'Gestão de Usuários' },
               ].map(module => (
                 <div key={module.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800/50 rounded-2xl border border-transparent hover:border-blue-500/30 transition-all">
                   <span className="text-sm font-bold text-gray-700 dark:text-gray-300">{module.label}</span>

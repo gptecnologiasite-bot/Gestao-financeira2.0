@@ -90,7 +90,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer / Settings Group */}
-      {isAdmin && (
+      {(isAdmin || hasPermission('configuracoes') || hasPermission('usuarios')) && (
         <div className="p-4 bg-gray-50/50 dark:bg-gray-800/20 border-t border-gray-100 dark:border-gray-800 space-y-1">
           <button
             onClick={() => setIsSettingsOpen(!isSettingsOpen)}
@@ -107,31 +107,35 @@ export default function Sidebar() {
 
           {isSettingsOpen && (
             <div className="mt-1 space-y-1 animate-in slide-in-from-top-2 duration-200">
-              <NavLink
-                to="/configuracoes"
-                className={({ isActive }) =>
-                  `flex items-center pl-12 pr-4 py-2 text-xs font-bold rounded-xl transition-all ${
-                    isActive
-                      ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
-                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`
-                }
-              >
-                Geral
-              </NavLink>
+              {(isAdmin || hasPermission('configuracoes')) && (
+                <NavLink
+                  to="/configuracoes"
+                  className={({ isActive }) =>
+                    `flex items-center pl-12 pr-4 py-2 text-xs font-bold rounded-xl transition-all ${
+                      isActive
+                        ? 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20'
+                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`
+                  }
+                >
+                  Geral
+                </NavLink>
+              )}
               
-              <NavLink
-                to="/usuarios"
-                className={({ isActive }) =>
-                  `flex items-center pl-12 pr-4 py-2 text-xs font-bold rounded-xl transition-all ${
-                    isActive
-                      ? 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20'
-                      : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`
-                }
-              >
-                Usuários
-              </NavLink>
+              {(isAdmin || hasPermission('usuarios')) && (
+                <NavLink
+                  to="/usuarios"
+                  className={({ isActive }) =>
+                    `flex items-center pl-12 pr-4 py-2 text-xs font-bold rounded-xl transition-all ${
+                      isActive
+                        ? 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20'
+                        : 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`
+                  }
+                >
+                  Usuários
+                </NavLink>
+              )}
             </div>
           )}
         </div>

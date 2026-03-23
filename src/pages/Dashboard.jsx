@@ -9,6 +9,7 @@ const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
 export default function Dashboard() {
   const { finances } = useFinance();
   const { isAdmin, user } = useAuth();
+  const [filterType, setFilterType] = React.useState('month');
 
   const hasAccess = isAdmin || user?.permissoes?.dashboard === true;
 
@@ -24,7 +25,12 @@ export default function Dashboard() {
     );
   }
 
-  const mockChartData = [
+  const mockChartData = filterType === 'month' ? [
+    { name: 'Sem 1', entradas: 4000, saidas: 1200 },
+    { name: 'Sem 2', entradas: 3000, saidas: 800 },
+    { name: 'Sem 3', entradas: 5000, saidas: 1500 },
+    { name: 'Sem 4', entradas: 3420, saidas: 700 },
+  ] : [
     { name: 'Jan', entradas: 12000, saidas: 4000 },
     { name: 'Fev', entradas: 15000, saidas: 3000 },
     { name: 'Mar', entradas: 10000, saidas: 5000 },
@@ -49,12 +55,22 @@ export default function Dashboard() {
         <div>
           <h1 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white uppercase italic">Visão Geral</h1>
           <p className="mt-1 text-sm font-medium text-gray-500 dark:text-gray-400 flex items-center gap-2">
-            <Calendar className="w-4 h-4" /> Resumo financeiro consolidado de Maio 2024
+            <Calendar className="w-4 h-4" /> {filterType === 'month' ? 'Resumo financeiro mensal (Maio 2024)' : 'Resumo financeiro anual consolidado (2024)'}
           </p>
         </div>
         <div className="flex items-center gap-2 bg-white dark:bg-gray-900 p-1.5 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm">
-           <button className="px-4 py-1.5 text-xs font-bold bg-blue-600 text-white rounded-lg shadow-lg shadow-blue-500/20">Mês</button>
-           <button className="px-4 py-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all">Ano</button>
+           <button 
+             onClick={() => setFilterType('month')}
+             className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${filterType === 'month' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+           >
+             Mês
+           </button>
+           <button 
+             onClick={() => setFilterType('year')}
+             className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${filterType === 'year' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
+           >
+             Ano
+           </button>
         </div>
       </div>
       

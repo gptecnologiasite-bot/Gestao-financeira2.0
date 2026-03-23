@@ -16,7 +16,7 @@ const safeParseJSON = (raw) => {
 export default function PortalTransparencia() {
   const { branding } = useBranding();
   const { user } = useAuth();
-  const [items] = useState(() => {
+  const [items, setItems] = useState(() => {
     const saved = safeParseJSON(localStorage.getItem('portal_transparencia_itens'));
     const list = Array.isArray(saved) ? saved : [];
     // Filtrar apenas os visíveis para o público
@@ -57,7 +57,7 @@ export default function PortalTransparencia() {
     }
   };
 
-  // Sincronizar chat: Robusto contra mudanças em outras abas e na mesma página
+  // Sincronizar chat e itens: Robusto contra mudanças em outras abas e na mesma página
   useEffect(() => {
     const syncChat = () => {
       try {
@@ -65,7 +65,6 @@ export default function PortalTransparencia() {
         const saved = raw ? JSON.parse(raw) : [];
         if (Array.isArray(saved)) {
           setChatMessages(prev => {
-            // Evitar re-renders desnecessários se for idêntico
             if (JSON.stringify(prev) === JSON.stringify(saved)) return prev;
             return saved;
           });
@@ -74,19 +73,44 @@ export default function PortalTransparencia() {
         console.error("Erro ao sincronizar chat:", err);
       }
     };
+
+    const syncItems = () => {
+      try {
+        const raw = localStorage.getItem('portal_transparencia_itens');
+        const saved = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(saved)) {
+          // Filtrar apenas os visíveis para o público
+          const visibleOnly = saved.filter(item => item.visible !== false);
+          setItems(prev => {
+            if (JSON.stringify(prev) === JSON.stringify(visibleOnly)) return prev;
+            return visibleOnly;
+          });
+        }
+      } catch (err) {
+        console.error("Erro ao sincronizar itens:", err);
+      }
+    };
     
-    // Escutar mudanças externas (outras abas)
-    window.addEventListener('storage', (e) => {
+    const handleStorageChange = (e) => {
       if (e.key === 'portal_transparencia_chat') syncChat();
-    });
+      if (e.key === 'portal_transparencia_itens') syncItems();
+    };
+
+    // Escutar mudanças externas (outras abas)
+    window.addEventListener('storage', handleStorageChange);
     
     // Polling de segurança (mesma aba ou falhas de evento)
-    const interval = setInterval(syncChat, 2000);
+    const interval = setInterval(() => {
+      syncChat();
+      syncItems();
+    }, 2000);
+
     syncChat(); // Carga inicial
+    syncItems();
     
     return () => {
       clearInterval(interval);
-      window.removeEventListener('storage', syncChat);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
@@ -159,7 +183,14 @@ export default function PortalTransparencia() {
                              {item.category || 'Geral'}
                            </span>
                            <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                             {new Intl.DateTimeFormat('pt-BR').format(new Date(item.createdAt))}
+                             {(() => {
+                               try {
+                                 const d = new Date(item.createdAt);
+                                 return isNaN(d.getTime()) ? 'Data Indisponível' : new Intl.DateTimeFormat('pt-BR').format(d);
+                               } catch {
+                                 return 'Data Indisponível';
+                               }
+                             })()}
                            </p>
                         </div>
                         <p className="text-sm font-bold text-gray-800 dark:text-gray-100">{item.text}</p>

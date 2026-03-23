@@ -116,21 +116,25 @@ export default function Login() {
             ) : null}
             {loading ? 'Acessando...' : 'Entrar no Sistema'}
           </button>
-          <a
-            href="/portal-transparencia"
+        </form>
+
+        <div className="space-y-4 pt-2">
+          <Link
+            to="/portal-transparencia"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex justify-center py-4 px-4 border border-blue-200 dark:border-blue-700 rounded-2xl text-sm font-black uppercase tracking-widest text-blue-600 dark:text-blue-400 bg-blue-50/60 dark:bg-blue-900/20 hover:bg-blue-100/80 dark:hover:bg-blue-900/40 transition-all active:scale-95"
           >
             Portal da Transparência
-          </a>
-        </form>
+          </Link>
 
-        <div className="text-center pt-2">
-            <Link to="/registro" className="text-sm font-bold text-gray-400 hover:text-blue-600 transition-colors">
-               Não possui uma conta? <span className="text-blue-600 underline">Cadastre-se aqui</span>
-            </Link>
+          <div className="text-center">
+              <Link to="/registro" className="text-sm font-bold text-gray-400 hover:text-blue-600 transition-colors">
+                 Não possui uma conta? <span className="text-blue-600 underline">Cadastre-se aqui</span>
+              </Link>
+          </div>
         </div>
+
         <p className="text-center text-xs text-gray-500 dark:text-gray-600 mt-8">
            &copy; {new Date().getFullYear()} Igreja - Sistema de Gestão Financeira.
         </p>

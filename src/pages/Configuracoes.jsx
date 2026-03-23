@@ -493,7 +493,7 @@ export default function Configuracoes() {
           </div>
         </div>
 
-        {user?.role === 'ADMIN' || user?.permissoes?.portal ? (
+        {user?.role === 'ADMIN' || user?.permissoes?.portal || user?.permissoes?.paginas ? (
           <div id="portal-section" className="bg-white dark:bg-gray-900 rounded-4xl shadow-sm border border-gray-100 dark:border-gray-700 p-6 transition-all">
             <div className="flex items-center gap-3 mb-5">
               <div className="w-8 h-8 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg flex items-center justify-center">
